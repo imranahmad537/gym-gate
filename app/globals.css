@@ -1,0 +1,196 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Light tokens */
+:root,
+[data-theme='light'] {
+  --bg: #f3f5f2;
+  --sf: #ffffff;
+  --sf2: #e9efea;
+  --ink: #0e1b14;
+  --mu: #4a5a51;
+  --ln: #d6ded8;
+  --pr: #0b5d35;
+  --pr-hover: #094b2b;
+  --prt: #0b5d35;
+  --prs: #ddefe3;
+  --bar: #8cc5a2;
+  --ok: #136c3a;
+  --okb: #dcf3e3;
+  --wa: #8a4b00;
+  --wab: #fdefcf;
+  --bd: #a61b1b;
+  --bdb: #fbe1e1;
+  --dok: #1f9d55;
+  --dwa: #e39b0b;
+  --dbd: #d93434;
+  --overlay: rgba(5, 12, 8, 0.55);
+  color-scheme: light;
+}
+
+/* Dark tokens (explicit choice) */
+[data-theme='dark'] {
+  --bg: #0b130f;
+  --sf: #14201a;
+  --sf2: #1c2b23;
+  --ink: #eaf2ec;
+  --mu: #a3b5aa;
+  --ln: #2a3b31;
+  --pr: #17804a;
+  --pr-hover: #1c9456;
+  --prt: #7fdca6;
+  --prs: #16382a;
+  --bar: #2f6b4a;
+  --ok: #86e0ac;
+  --okb: #163a28;
+  --wa: #f5c163;
+  --wab: #3a2b0e;
+  --bd: #ff9e9e;
+  --bdb: #401818;
+  --dok: #34c26f;
+  --dwa: #f0b02e;
+  --dbd: #f05252;
+  --overlay: rgba(0, 0, 0, 0.65);
+  color-scheme: dark;
+}
+
+/* Dark tokens (follow the phone's setting) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0b130f;
+    --sf: #14201a;
+    --sf2: #1c2b23;
+    --ink: #eaf2ec;
+    --mu: #a3b5aa;
+    --ln: #2a3b31;
+    --pr: #17804a;
+    --pr-hover: #1c9456;
+    --prt: #7fdca6;
+    --prs: #16382a;
+    --bar: #2f6b4a;
+    --ok: #86e0ac;
+    --okb: #163a28;
+    --wa: #f5c163;
+    --wab: #3a2b0e;
+    --bd: #ff9e9e;
+    --bdb: #401818;
+    --dok: #34c26f;
+    --dwa: #f0b02e;
+    --dbd: #f05252;
+    --overlay: rgba(0, 0, 0, 0.65);
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--sf);
+  --color-surface-2: var(--sf2);
+  --color-ink: var(--ink);
+  --color-muted: var(--mu);
+  --color-line: var(--ln);
+  --color-primary: var(--pr);
+  --color-primary-hover: var(--pr-hover);
+  --color-primary-ink: var(--prt);
+  --color-primary-soft: var(--prs);
+  --color-bar: var(--bar);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--okb);
+  --color-warn: var(--wa);
+  --color-warn-soft: var(--wab);
+  --color-bad: var(--bd);
+  --color-bad-soft: var(--bdb);
+  --color-dot-ok: var(--dok);
+  --color-dot-warn: var(--dwa);
+  --color-dot-bad: var(--dbd);
+  --color-overlay: var(--overlay);
+  --font-sans: 'Manrope Variable', 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 3px solid var(--pr);
+  outline-offset: 2px;
+}
+
+dialog::backdrop {
+  background: var(--overlay);
+}
+
+dialog {
+  color: var(--ink);
+}
+
+input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+@keyframes gg-slide-in {
+  from {
+    transform: translateX(8%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes gg-sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes gg-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.animate-slide-in {
+  animation: gg-slide-in 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.animate-sheet-up {
+  animation: gg-sheet-up 220ms ease-out both;
+}
+
+.skeleton {
+  background: var(--sf2);
+  animation: gg-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
