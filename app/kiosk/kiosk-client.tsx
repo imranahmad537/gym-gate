@@ -192,27 +192,35 @@ export function KioskClient({ initial, dev }: { initial: KioskState; dev: boolea
   }, [flush]);
 
   // ---------------------------------------------------------------- refresh member list
-  useEffect(() => {
-    const refresh = async () => {
-      try {
-        const res = await fetch('/api/kiosk/state', { cache: 'no-store' });
-        if (res.status === 401) return window.location.reload();
-        if (!res.ok) return;
-        const next = (await res.json()) as KioskState;
-        syncClock(next.serverTime);
-        const queued = readQueue(queueKey);
-        setState({
-          ...next,
-          members: next.members.map((x) => ({ ...x, visits: x.visits + queued.filter((q) => q.memberId === x.id).length })),
-        });
-        setOnline(true);
-      } catch {
-        setOnline(false);
+  const lastRefresh = useRef(initial.serverTime);
+
+  /** Reloads the member list. Returns the fresh list, or null when offline or the server failed. */
+  const refreshMembers = useCallback(async (): Promise<KioskMember[] | null> => {
+    lastRefresh.current = Date.now();
+    try {
+      const res = await fetch('/api/kiosk/state', { cache: 'no-store' });
+      if (res.status === 401) {
+        window.location.reload();
+        return null;
       }
-    };
-    const t = setInterval(refresh, 5 * 60_000);
-    return () => clearInterval(t);
+      if (!res.ok) return null;
+      const next = (await res.json()) as KioskState;
+      syncClock(next.serverTime);
+      const queued = readQueue(queueKey);
+      const members = next.members.map((x) => ({ ...x, visits: x.visits + queued.filter((q) => q.memberId === x.id).length }));
+      setState({ ...next, members });
+      setOnline(true);
+      return members;
+    } catch {
+      setOnline(false);
+      return null;
+    }
   }, [queueKey, syncClock]);
+
+  useEffect(() => {
+    const t = setInterval(() => void refreshMembers(), 5 * 60_000);
+    return () => clearInterval(t);
+  }, [refreshMembers]);
 
   // ---------------------------------------------------------------- phone check-ins (Realtime + polling fallback)
   const [rtConnected, setRtConnected] = useState(false);
@@ -315,8 +323,14 @@ export function KioskClient({ initial, dev }: { initial: KioskState; dev: boolea
   );
 
   const lookup = useCallback(
-    (digits: string) => {
-      const matches = membersByLast4.get(digits) ?? [];
+    async (digits: string) => {
+      let matches = membersByLast4.get(digits) ?? [];
+      // Not in the list we have: the member may have been added after this tablet last loaded it.
+      // Fetch a fresh list once before saying "not found" (at most every 15 seconds, so wrong guesses can't hammer the server).
+      if (matches.length === 0 && navigator.onLine && Date.now() - lastRefresh.current > 15_000) {
+        const fresh = await refreshMembers();
+        if (fresh) matches = fresh.filter((x) => x.last4 === digits);
+      }
       if (matches.length === 1) keypadCheckin(matches[0]);
       else if (matches.length > 1) setPicks(matches);
       else {
@@ -324,7 +338,7 @@ export function KioskClient({ initial, dev }: { initial: KioskState; dev: boolea
         present({ id: `nf-${Date.now()}`, kind: 'notfound', digits });
       }
     },
-    [keypadCheckin, membersByLast4, present],
+    [keypadCheckin, membersByLast4, present, refreshMembers],
   );
 
   const press = (k: (typeof KEYS)[number]) => {
@@ -333,7 +347,7 @@ export function KioskClient({ initial, dev }: { initial: KioskState; dev: boolea
     if (entry.length >= 4) return;
     const next = entry + k;
     setEntry(next);
-    if (next.length === 4) setTimeout(() => lookup(next), 150);
+    if (next.length === 4) setTimeout(() => void lookup(next), 150);
   };
 
   // ---------------------------------------------------------------- owner exit
@@ -485,7 +499,7 @@ export function KioskClient({ initial, dev }: { initial: KioskState; dev: boolea
               onPointerCancel={holdEnd}
               className="flex min-h-12 cursor-default items-center gap-3 [-webkit-touch-callout:none]"
             >
-              <span className="bg-primary flex size-11 items-center justify-center rounded-[13px] text-on-primary">
+              <span className="bg-primary text-on-primary flex size-11 items-center justify-center rounded-[13px]">
                 <Dumbbell className="size-6" aria-hidden />
               </span>
               <span className="text-[19px] font-extrabold">{state.gym.name}</span>
@@ -571,7 +585,7 @@ export function KioskClient({ initial, dev }: { initial: KioskState; dev: boolea
             </div>
             {pinState === 'ok' ? (
               <>
-                <Link href="/" className="bg-primary flex min-h-[60px] items-center justify-center rounded-2xl text-xl font-extrabold text-on-primary">
+                <Link href="/" className="bg-primary text-on-primary flex min-h-[60px] items-center justify-center rounded-2xl text-xl font-extrabold">
                   {m.kiosk.exit}
                 </Link>
                 <button type="button" onClick={() => setPinOpen(false)} className="border-line min-h-[60px] rounded-2xl border text-lg font-bold">
