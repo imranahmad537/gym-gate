@@ -87,10 +87,10 @@ export function MembersList({ members, initialFilter, hideFilters }: { members: 
                 type="button"
                 aria-pressed={on}
                 onClick={() => setFilter(f)}
-                className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border-[1.5px] px-3.5 text-sm font-bold ${on ? 'border-primary bg-primary text-white' : 'border-line bg-surface text-ink'}`}
+                className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border-[1.5px] px-3.5 text-sm font-bold ${on ? 'border-primary bg-primary text-on-primary' : 'border-line bg-surface text-ink'}`}
               >
                 {m.members.filters[f]}
-                <span className={`rounded-full px-[7px] py-0.5 text-xs ${on ? 'bg-white/20 text-white' : 'bg-surface-2 text-muted'}`}>{counts[f]}</span>
+                <span className={`rounded-full px-[7px] py-0.5 text-xs ${on ? 'bg-on-primary/20 text-on-primary' : 'bg-surface-2 text-muted'}`}>{counts[f]}</span>
               </button>
             );
           })}

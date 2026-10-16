@@ -10,7 +10,7 @@ export function PhoneShell({ gymName, children }: { gymName?: string | null; chi
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col">
       <header className="flex h-16 shrink-0 items-center gap-2.5 px-5">
-        <span className="bg-primary flex size-9 items-center justify-center rounded-[11px] text-white">
+        <span className="bg-primary flex size-9 items-center justify-center rounded-[11px] text-on-primary">
           <Dumbbell className="size-5" aria-hidden />
         </span>
         <span className="text-base font-extrabold">{gymName || m.app.name}</span>

@@ -1,5 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { RETURNING_COOKIE } from '@/lib/cookies';
+import { safeNext } from '@/lib/safe-next';
 
 // Routes members and the kiosk tablet use. They never need an owner session,
 // so we skip the auth round-trip entirely to keep check-in fast.
@@ -40,17 +42,19 @@ export async function proxy(request: NextRequest) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }
-    const login = request.nextUrl.clone();
-    login.pathname = '/login';
-    login.search = pathname === '/' ? '' : `?next=${encodeURIComponent(pathname + search)}`;
-    return NextResponse.redirect(login);
+    // First visit from this browser: start with account creation. Returning owners get Sign in.
+    const target = request.nextUrl.clone();
+    target.pathname = request.cookies.has(RETURNING_COOKIE) ? '/login' : '/signup';
+    target.search = pathname === '/' ? '' : `?next=${encodeURIComponent(pathname + search)}`;
+    return NextResponse.redirect(target);
   }
 
   if (signedIn && (pathname === '/login' || pathname === '/signup')) {
-    const home = request.nextUrl.clone();
-    home.pathname = '/';
-    home.search = '';
-    return NextResponse.redirect(home);
+    // Already signed in (e.g. another tab finished signing in): go where the link was headed.
+    const redirect = NextResponse.redirect(new URL(safeNext(request.nextUrl.searchParams.get('next')), request.url));
+    // Keep any session cookie getClaims just refreshed, or the next request would look signed out.
+    response.cookies.getAll().forEach((c) => redirect.cookies.set(c));
+    return redirect;
   }
 
   return response;

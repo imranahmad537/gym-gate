@@ -485,7 +485,7 @@ export function KioskClient({ initial, dev }: { initial: KioskState; dev: boolea
               onPointerCancel={holdEnd}
               className="flex min-h-12 cursor-default items-center gap-3 [-webkit-touch-callout:none]"
             >
-              <span className="bg-primary flex size-11 items-center justify-center rounded-[13px] text-white">
+              <span className="bg-primary flex size-11 items-center justify-center rounded-[13px] text-on-primary">
                 <Dumbbell className="size-6" aria-hidden />
               </span>
               <span className="text-[19px] font-extrabold">{state.gym.name}</span>
@@ -571,7 +571,7 @@ export function KioskClient({ initial, dev }: { initial: KioskState; dev: boolea
             </div>
             {pinState === 'ok' ? (
               <>
-                <Link href="/" className="bg-primary flex min-h-[60px] items-center justify-center rounded-2xl text-xl font-extrabold text-white">
+                <Link href="/" className="bg-primary flex min-h-[60px] items-center justify-center rounded-2xl text-xl font-extrabold text-on-primary">
                   {m.kiosk.exit}
                 </Link>
                 <button type="button" onClick={() => setPinOpen(false)} className="border-line min-h-[60px] rounded-2xl border text-lg font-bold">
@@ -654,7 +654,7 @@ function ResultOverlay({ display, secondsBack, onDone }: { display: Display; sec
         <div className="text-[clamp(40px,7vh,62px)] font-extrabold">{m.kiosk.notFound}</div>
         <div className="text-[clamp(22px,3.6vh,30px)] font-bold">{m.kiosk.notFoundLine1}</div>
         <div className="text-[clamp(18px,2.8vh,23px)] font-semibold opacity-90">{m.kiosk.notFoundLine2}</div>
-        <Footer secondsBack={secondsBack} via={m.checkinMethod.keypad} onDone={onDone} btn="bg-primary text-white" />
+        <Footer secondsBack={secondsBack} via={m.checkinMethod.keypad} onDone={onDone} btn="bg-primary text-on-primary" />
       </div>
     );
   }

@@ -109,7 +109,7 @@ export function MemberForm({
 
         <div>
           <Label htmlFor="mf-phone">{m.form.phone}</Label>
-          <div className="border-line bg-surface focus-within:border-primary flex min-h-[54px] overflow-hidden rounded-[14px] border-[1.5px]">
+          <div className="border-line bg-surface focus-within:border-ink flex min-h-[54px] overflow-hidden rounded-2xl border-[1.5px]">
             <span className="bg-surface-2 text-muted flex items-center px-3 text-base font-extrabold">+92</span>
             <input
               id="mf-phone"

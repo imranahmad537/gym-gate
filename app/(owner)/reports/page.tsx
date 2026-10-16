@@ -80,7 +80,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
         )}
       </nav>
 
-      <section className="bg-primary mt-3.5 rounded-[20px] p-[18px] text-white">
+      <section className="bg-primary mt-3.5 rounded-[20px] p-[18px] text-on-primary">
         <div className="text-sm font-bold opacity-90">{m.reports.total}</div>
         <div className="mt-1 text-[38px] leading-tight font-extrabold">{formatRs(total)}</div>
         <div className="mt-1 text-sm font-semibold opacity-90">{m.reports.sub(payments.length)}</div>

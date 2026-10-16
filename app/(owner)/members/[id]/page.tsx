@@ -185,7 +185,7 @@ export default async function MemberPage({ params }: { params: Promise<{ id: str
                 key={i}
                 aria-label={`${c.day} ${formatMonth(month)}${c.came ? `, ${m.member.came}` : ''}`}
                 className={`flex h-[38px] items-center justify-center rounded-[10px] text-[13px] font-bold ${
-                  c.future ? 'text-muted opacity-55' : c.came ? 'bg-primary text-white' : 'bg-surface-2 text-muted'
+                  c.future ? 'text-muted opacity-55' : c.came ? 'bg-primary text-on-primary' : 'bg-surface-2 text-muted'
                 } ${c.today ? 'ring-ink ring-2 ring-inset' : ''}`}
               >
                 {c.day}

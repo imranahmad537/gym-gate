@@ -6,9 +6,9 @@ type Variant = 'primary' | 'secondary' | 'soft' | 'ghost' | 'danger' | 'dangerOu
 type Size = 'lg' | 'md' | 'sm';
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-2xl font-extrabold transition-colors select-none disabled:opacity-50 disabled:pointer-events-none text-center';
+  'inline-flex items-center justify-center gap-2 rounded-full font-bold tracking-[-0.01em] transition-colors select-none disabled:opacity-50 disabled:pointer-events-none text-center';
 const variants: Record<Variant, string> = {
-  primary: 'bg-primary text-white hover:bg-primary-hover',
+  primary: 'bg-primary text-on-primary hover:bg-primary-hover',
   secondary: 'bg-surface text-ink border-[1.5px] border-line hover:bg-surface-2',
   soft: 'bg-primary-soft text-primary-ink hover:brightness-95',
   ghost: 'bg-transparent text-primary-ink hover:bg-surface-2',
@@ -16,7 +16,7 @@ const variants: Record<Variant, string> = {
   dangerOutline: 'bg-transparent text-bad border-[1.5px] border-line hover:bg-bad-soft',
 };
 const sizes: Record<Size, string> = {
-  lg: 'min-h-14 px-5 text-[17px]',
+  lg: 'min-h-14 px-6 text-[17px]',
   md: 'min-h-12 px-4 text-[15px]',
   sm: 'min-h-11 px-3 text-sm',
 };

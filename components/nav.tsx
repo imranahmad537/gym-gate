@@ -35,7 +35,7 @@ export function BottomNav() {
                 className={`flex h-full flex-col items-center justify-center gap-[3px] text-xs ${active ? 'text-primary-ink font-extrabold' : 'text-muted font-bold'}`}
               >
                 {center ? (
-                  <span className="bg-primary flex h-[30px] w-11 items-center justify-center rounded-[10px] text-white">
+                  <span className="bg-primary text-on-primary flex h-[30px] w-11 items-center justify-center rounded-[10px]">
                     <Icon className="size-[22px]" aria-hidden />
                   </span>
                 ) : (
@@ -58,7 +58,7 @@ export function SideNav({ gymName }: { gymName: string }) {
   return (
     <aside className="border-line bg-surface sticky top-0 hidden h-dvh w-[248px] shrink-0 flex-col gap-1.5 border-r px-3.5 py-5 md:flex">
       <div className="flex items-center gap-2.5 px-2 pb-4">
-        <span className="bg-primary flex size-[42px] items-center justify-center rounded-xl text-white">
+        <span className="bg-primary text-on-primary flex size-[42px] items-center justify-center rounded-xl">
           <Dumbbell className="size-[22px]" aria-hidden />
         </span>
         <span className="min-w-0">

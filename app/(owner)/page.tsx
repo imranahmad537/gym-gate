@@ -56,7 +56,7 @@ export default async function DashboardPage() {
     <Page>
       <header className="flex items-center justify-between gap-3 pt-4 pb-2 md:pt-6">
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="bg-primary flex size-10 shrink-0 items-center justify-center rounded-xl text-white md:hidden">
+          <span className="bg-primary flex size-10 shrink-0 items-center justify-center rounded-xl text-on-primary md:hidden">
             <Dumbbell className="size-[22px]" aria-hidden />
           </span>
           <div className="min-w-0">
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
           <div className="text-[34px] leading-none font-extrabold">{owing.length}</div>
           <div className="text-xs font-semibold">{m.dashboard.pending(formatRs(owingAmount))}</div>
         </Link>
-        <Link href="/reports" className="bg-primary flex flex-col gap-1.5 rounded-[18px] p-4 text-white">
+        <Link href="/reports" className="bg-primary flex flex-col gap-1.5 rounded-[18px] p-4 text-on-primary">
           <div className="text-[13px] font-semibold opacity-90">{m.dashboard.collected(formatMonth(month).split(' ')[0].slice(0, 3))}</div>
           <div className="text-[26px] leading-tight font-extrabold">{formatRs(collected)}</div>
           <div className="text-xs opacity-90">{m.dashboard.payments(paymentsCount)}</div>
@@ -228,7 +228,7 @@ export default async function DashboardPage() {
 
       <Link
         href="/members/new"
-        className="bg-primary fixed right-4 bottom-[92px] z-30 inline-flex min-h-14 items-center gap-2 rounded-[18px] pr-5 pl-4 text-base font-extrabold text-white shadow-[0_8px_20px_rgba(11,93,53,0.35)] md:hidden"
+        className="bg-primary fixed right-4 bottom-[92px] z-30 inline-flex min-h-14 items-center gap-2 rounded-full pr-5 pl-4 text-base font-bold text-on-primary shadow-[0_10px_24px_rgba(17,17,20,0.28)] md:hidden"
       >
         <Plus className="size-[22px]" strokeWidth={2.4} aria-hidden />
         {m.dashboard.addMember}

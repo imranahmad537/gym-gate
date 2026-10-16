@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactNode } from 'react';
 
 export const inputClass =
-  'w-full min-h-[54px] rounded-[14px] border-[1.5px] border-line bg-surface px-3.5 text-[17px] font-semibold text-ink placeholder:text-muted/70 focus:border-primary focus:outline-none disabled:opacity-60';
+  'w-full min-h-[54px] rounded-2xl border-[1.5px] border-line bg-surface px-4 text-[17px] font-semibold text-ink transition-colors placeholder:text-muted/70 hover:border-muted/40 focus:border-ink focus:outline-none aria-invalid:border-bad disabled:opacity-60';
 
 export function Label({ className = '', ...props }: ComponentProps<'label'>) {
   return <label className={`mb-1.5 block text-sm font-bold ${className}`} {...props} />;
@@ -91,7 +91,7 @@ export function Segmented<T extends string | number>({
             type="button"
             aria-pressed={on}
             onClick={() => onChange(o)}
-            className={`min-h-12 rounded-xl border-[1.5px] text-[15px] font-extrabold ${on ? 'border-primary bg-primary text-white' : 'border-line bg-surface text-ink'}`}
+            className={`min-h-12 rounded-full border-[1.5px] text-[15px] font-bold ${on ? 'border-primary bg-primary text-on-primary' : 'border-line bg-surface text-ink'}`}
           >
             {render(o)}
           </button>

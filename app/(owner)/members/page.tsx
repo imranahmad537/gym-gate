@@ -86,7 +86,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
       {!showArchived && (
         <Link
           href="/members/new"
-          className="bg-primary fixed right-4 bottom-[92px] z-30 inline-flex min-h-14 items-center gap-2 rounded-[18px] pr-5 pl-4 text-base font-extrabold text-white shadow-[0_8px_20px_rgba(11,93,53,0.35)] md:hidden"
+          className="bg-primary fixed right-4 bottom-[92px] z-30 inline-flex min-h-14 items-center gap-2 rounded-full pr-5 pl-4 text-base font-bold text-on-primary shadow-[0_10px_24px_rgba(17,17,20,0.28)] md:hidden"
         >
           <Plus className="size-[22px]" strokeWidth={2.4} aria-hidden />
           {m.dashboard.addMember}

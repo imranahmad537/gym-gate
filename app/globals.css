@@ -5,43 +5,51 @@
 /* Light tokens */
 :root,
 [data-theme='light'] {
-  --bg: #f3f5f2;
+  --bg: #f2f2f5;
   --sf: #ffffff;
-  --sf2: #e9efea;
-  --ink: #0e1b14;
-  --mu: #4a5a51;
-  --ln: #d6ded8;
-  --pr: #0b5d35;
-  --pr-hover: #094b2b;
-  --prt: #0b5d35;
-  --prs: #ddefe3;
-  --bar: #8cc5a2;
-  --ok: #136c3a;
-  --okb: #dcf3e3;
+  --sf2: #f0f0f3;
+  --ink: #111114;
+  --mu: #62626d;
+  --ln: #e6e6eb;
+  --pr: #111114;
+  --pr-hover: #2c2c33;
+  --on-pr: #ffffff;
+  --prt: #5a48d6;
+  --prs: #ebe7ff;
+  --acc: #b9aef8;
+  --acc2: #fbe08a;
+  --bar: #e2e2e9;
+  --bar-stripe: #d2d2db;
+  --ok: #13703c;
+  --okb: #dff5e7;
   --wa: #8a4b00;
-  --wab: #fdefcf;
-  --bd: #a61b1b;
-  --bdb: #fbe1e1;
+  --wab: #fdf1c7;
+  --bd: #b42318;
+  --bdb: #fde7e5;
   --dok: #1f9d55;
   --dwa: #e39b0b;
   --dbd: #d93434;
-  --overlay: rgba(5, 12, 8, 0.55);
+  --overlay: rgba(17, 17, 20, 0.5);
   color-scheme: light;
 }
 
 /* Dark tokens (explicit choice) */
 [data-theme='dark'] {
-  --bg: #0b130f;
-  --sf: #14201a;
-  --sf2: #1c2b23;
-  --ink: #eaf2ec;
-  --mu: #a3b5aa;
-  --ln: #2a3b31;
-  --pr: #17804a;
-  --pr-hover: #1c9456;
-  --prt: #7fdca6;
-  --prs: #16382a;
-  --bar: #2f6b4a;
+  --bg: #0d0d10;
+  --sf: #17171b;
+  --sf2: #222228;
+  --ink: #f3f3f6;
+  --mu: #a3a3ae;
+  --ln: #2b2b32;
+  --pr: #f3f3f6;
+  --pr-hover: #dcdce3;
+  --on-pr: #111114;
+  --prt: #c4bbff;
+  --prs: #2a2547;
+  --acc: #9d90f2;
+  --acc2: #e9c95e;
+  --bar: #26262d;
+  --bar-stripe: #303038;
   --ok: #86e0ac;
   --okb: #163a28;
   --wa: #f5c163;
@@ -58,17 +66,21 @@
 /* Dark tokens (follow the phone's setting) */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #0b130f;
-    --sf: #14201a;
-    --sf2: #1c2b23;
-    --ink: #eaf2ec;
-    --mu: #a3b5aa;
-    --ln: #2a3b31;
-    --pr: #17804a;
-    --pr-hover: #1c9456;
-    --prt: #7fdca6;
-    --prs: #16382a;
-    --bar: #2f6b4a;
+    --bg: #0d0d10;
+    --sf: #17171b;
+    --sf2: #222228;
+    --ink: #f3f3f6;
+    --mu: #a3a3ae;
+    --ln: #2b2b32;
+    --pr: #f3f3f6;
+    --pr-hover: #dcdce3;
+    --on-pr: #111114;
+    --prt: #c4bbff;
+    --prs: #2a2547;
+    --acc: #9d90f2;
+    --acc2: #e9c95e;
+    --bar: #26262d;
+    --bar-stripe: #303038;
     --ok: #86e0ac;
     --okb: #163a28;
     --wa: #f5c163;
@@ -92,9 +104,12 @@
   --color-line: var(--ln);
   --color-primary: var(--pr);
   --color-primary-hover: var(--pr-hover);
+  --color-on-primary: var(--on-pr);
   --color-primary-ink: var(--prt);
   --color-primary-soft: var(--prs);
   --color-bar: var(--bar);
+  --color-accent: var(--acc);
+  --color-accent-2: var(--acc2);
   --color-ok: var(--ok);
   --color-ok-soft: var(--okb);
   --color-warn: var(--wa);
@@ -105,12 +120,18 @@
   --color-dot-warn: var(--dwa);
   --color-dot-bad: var(--dbd);
   --color-overlay: var(--overlay);
-  --font-sans: 'Manrope Variable', 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: var(--font-satoshi), 'Satoshi', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.025em;
 }
 
 body {
@@ -121,7 +142,7 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid var(--pr);
+  outline: 3px solid var(--prt);
   outline-offset: 2px;
 }
 
@@ -193,4 +214,9 @@ input[type='search']::-webkit-search-cancel-button {
 
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Hatched track behind chart bars, as in the design. */
+.bg-bar {
+  background-image: repeating-linear-gradient(135deg, var(--bar-stripe) 0 2px, transparent 2px 9px);
 }

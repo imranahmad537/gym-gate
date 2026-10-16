@@ -6,6 +6,9 @@ import { compareByUrgency, feeInfo } from '@/lib/status';
 import { buildCheckinResult } from '@/lib/checkin-result';
 import { initials } from '@/lib/avatar';
 import { deviceLabel } from '@/lib/device-label';
+import { authErrorMessage } from '@/lib/auth-errors';
+import { firstParam, safeNext } from '@/lib/safe-next';
+import { m } from '@/messages';
 
 describe('dates', () => {
   it('formats like "10 Oct 2026"', () => {
@@ -109,5 +112,33 @@ describe('misc', () => {
     expect(deviceLabel('Mozilla/5.0 (Linux; Android 14; SM-A546E Build/UP1A) AppleWebKit')).toBe('Android · SM-A546E');
     expect(deviceLabel('Mozilla/5.0 (Linux; Android 10; K) AppleWebKit')).toBe('Android phone');
     expect(deviceLabel('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)')).toBe('iPhone');
+  });
+});
+
+describe('auth helpers', () => {
+  it('only allows redirects to our own paths', () => {
+    expect(safeNext('/members?f=due')).toBe('/members?f=due');
+    expect(safeNext('//evil.com')).toBe('/');
+    expect(safeNext('/\\evil.com')).toBe('/');
+    expect(safeNext('https://evil.com')).toBe('/');
+    expect(safeNext('/\t/evil.com')).toBe('/'); // browsers strip the tab, leaving //evil.com
+    expect(safeNext('/%2F%2Fevil.com')).toBe('/%2F%2Fevil.com'); // encoded slashes stay a path
+    expect(safeNext('/setup?next=%2Fmembers')).toBe('/setup?next=%2Fmembers');
+    expect(safeNext(null)).toBe('/');
+  });
+  it('never shows raw Supabase wording', () => {
+    expect(authErrorMessage({ code: 'invalid_credentials', message: 'Invalid login credentials' })).toBe(m.auth.badLogin);
+    expect(authErrorMessage({ code: 'user_already_exists', message: 'User already registered' })).toBe(m.auth.accountExists);
+    expect(authErrorMessage({ code: 'weak_password', message: 'Password is known to be weak' })).toBe(m.auth.weakPassword);
+    expect(authErrorMessage({ status: 429, message: 'For security purposes, you can only request this after 42 seconds.' })).toBe(m.auth.tooManyAttempts);
+    expect(authErrorMessage({ code: 'over_email_send_rate_limit', message: 'email rate limit exceeded' })).toBe(m.auth.tooManyAttempts);
+    expect(authErrorMessage({ message: 'TypeError: fetch failed' })).toBe(m.common.offlineTryAgain);
+    expect(authErrorMessage({ code: 'signup_disabled', message: 'Signups not allowed for this instance' })).toBe(m.auth.signupClosed);
+    expect(authErrorMessage({ code: 'email_not_confirmed', message: 'Email not confirmed' })).toBe(m.auth.checkEmail);
+  });
+  it('reads one value from repeated or oversized params', () => {
+    expect(firstParam(['/a', '/b'])).toBe('/a');
+    expect(firstParam(undefined)).toBeUndefined();
+    expect(firstParam('x'.repeat(600), 254)).toHaveLength(254);
   });
 });

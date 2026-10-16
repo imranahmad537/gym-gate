@@ -40,7 +40,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="animate-sheet-up pointer-events-auto flex min-h-14 items-center gap-3 rounded-2xl bg-[#0e1b14] px-4 text-white shadow-[0_10px_24px_rgba(0,0,0,0.3)]"
+            className="animate-sheet-up pointer-events-auto flex min-h-14 items-center gap-3 rounded-full bg-[#111114] px-5 text-white shadow-[0_10px_24px_rgba(0,0,0,0.3)] ring-1 ring-white/10"
           >
             <span className={`flex size-[30px] shrink-0 items-center justify-center rounded-full ${t.kind === 'ok' ? 'bg-[#1f9d55]' : 'bg-[#d93434]'}`}>
               {t.kind === 'ok' ? <Check className="size-[18px]" strokeWidth={3} aria-hidden /> : <TriangleAlert className="size-[18px]" aria-hidden />}
@@ -49,7 +49,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             {t.action && (
               <button
                 type="button"
-                className="min-h-11 px-1 text-[15px] font-extrabold text-[#8ee0b0]"
+                className="min-h-11 px-1 text-[15px] font-extrabold text-[#c4bbff]"
                 onClick={() => {
                   t.action?.onClick();
                   dismiss(t.id);
