@@ -5,19 +5,6 @@
 // Needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local.
 import { createClient } from '@supabase/supabase-js';
 
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
-const fail = (msg) => { console.error(msg); process.exit(1); };
-
-const { data: gyms, error } = await db.from('gyms').select('id, name, timezone, next_member_no');
-if (error) fail(error.message);
-const gym = process.argv[2] ? gyms.find((g) => g.id === process.argv[2]) : gyms.length === 1 ? gyms[0] : null;
-if (!gym) fail(`Pass a gym id. Gyms: ${gyms.map((g) => `${g.id} (${g.name})`).join(', ') || 'none — sign up first'}`);
-
-const { data: plans } = await db.from('plans').select('*').eq('gym_id', gym.id);
-const plan = (name) => plans.find((p) => p.name === name) ?? plans[0];
-const today = new Intl.DateTimeFormat('en-CA', { timeZone: gym.timezone }).format(new Date());
-const day = (n) => { const d = new Date(`${today}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
-
 // [name, phone, plan, valid till (days from today), visits this week]
 const people = [
   ['Usman Tariq', '3124455667', 'Quarterly', 56, 5],
@@ -38,30 +25,77 @@ const people = [
   ['Asad Ullah', '3131732050', 'Monthly', 1, 5],
   ['Rizwan Gul', '3002234567', 'Quarterly', 51, 3],
 ];
-
-let no = gym.next_member_no;
 const methods = ['cash', 'cash', 'jazzcash', 'easypaisa', 'cash', 'bank'];
-for (const [i, [name, phone, planName, tillOffset, visits]] of people.entries()) {
-  const p = plan(planName);
-  const validTill = day(tillOffset);
-  const start = day(tillOffset - p.duration_days + 1);
-  const { data: member, error: e1 } = await db
-    .from('members')
-    .insert({ gym_id: gym.id, member_no: no++, name, phone: `+92${phone}`, plan_id: p.id, valid_till: validTill, joined_on: day(-120 - i * 7) })
-    .select('id')
-    .single();
-  if (e1) fail(`${name}: ${e1.message}`);
-  await db.from('payments').insert({
-    gym_id: gym.id, member_id: member.id, plan_id: p.id, amount: p.price, method: methods[i % methods.length],
-    paid_on: start <= today ? start : today, extends_plan: true, period_start: start, period_end: validTill,
-  });
-  const rows = [];
-  for (let v = 0; v < visits; v++) {
-    const at = new Date(`${day(-v - (i % 2))}T${String(6 + ((i * 3 + v) % 14)).padStart(2, '0')}:${String((i * 7) % 60).padStart(2, '0')}:00+05:00`);
-    if (at > new Date()) continue;
-    rows.push({ gym_id: gym.id, member_id: member.id, method: v % 3 === 0 ? 'keypad' : 'phone', fee_status: tillOffset < 0 ? 'overdue' : tillOffset <= 5 ? 'due' : 'active', checked_at: at.toISOString() });
+
+/** Returns an error message, or null on success. */
+async function seed() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return 'Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local.';
+  const db = createClient(url, key, { auth: { persistSession: false } });
+
+  const { data: gyms, error } = await db.from('gyms').select('id, name, timezone, next_member_no');
+  if (error) {
+    if (/schema cache/i.test(error.message)) {
+      return `${error.message}\nThe database has no GymGate tables yet. Run the files in supabase/migrations/ in the SQL editor of ${new URL(url).host}, then sign up and create your gym.`;
+    }
+    return error.message;
   }
-  if (rows.length) await db.from('checkins').insert(rows);
+  const gym = process.argv[2] ? gyms.find((g) => g.id === process.argv[2]) : gyms.length === 1 ? gyms[0] : null;
+  if (!gym) return `Pass a gym id. Gyms: ${gyms.map((g) => `${g.id} (${g.name})`).join(', ') || 'none — sign up and create your gym first'}`;
+
+  const { data: plans, error: planError } = await db.from('plans').select('*').eq('gym_id', gym.id);
+  if (planError) return planError.message;
+  if (!plans.length) return `${gym.name} has no plans. Add one in Settings first.`;
+  const plan = (name) => plans.find((p) => p.name === name) ?? plans[0];
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: gym.timezone }).format(new Date());
+  const day = (n) => {
+    const d = new Date(`${today}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + n);
+    return d.toISOString().slice(0, 10);
+  };
+
+  let no = gym.next_member_no;
+  for (const [i, [name, phone, planName, tillOffset, visits]] of people.entries()) {
+    const p = plan(planName);
+    const validTill = day(tillOffset);
+    const start = day(tillOffset - p.duration_days + 1);
+    const { data: member, error: e1 } = await db
+      .from('members')
+      .insert({ gym_id: gym.id, member_no: no, name, phone: `+92${phone}`, plan_id: p.id, valid_till: validTill, joined_on: day(-120 - i * 7) })
+      .select('id')
+      .single();
+    if (e1) return `${name}: ${e1.message}`;
+    // Keep the counter in step after every member, so a failed run can simply be re-run.
+    no += 1;
+    const { error: e0 } = await db.from('gyms').update({ next_member_no: no }).eq('id', gym.id);
+    if (e0) return `${name}: ${e0.message}`;
+
+    const { error: e2 } = await db.from('payments').insert({
+      gym_id: gym.id, member_id: member.id, plan_id: p.id, amount: p.price, method: methods[i % methods.length],
+      paid_on: start <= today ? start : today, extends_plan: true, period_start: start, period_end: validTill,
+    });
+    if (e2) return `${name} (payment): ${e2.message}`;
+
+    const rows = [];
+    for (let v = 0; v < visits; v++) {
+      const at = new Date(`${day(-v - (i % 2))}T${String(6 + ((i * 3 + v) % 14)).padStart(2, '0')}:${String((i * 7) % 60).padStart(2, '0')}:00+05:00`);
+      if (at > new Date()) continue;
+      rows.push({ gym_id: gym.id, member_id: member.id, method: v % 3 === 0 ? 'keypad' : 'phone', fee_status: tillOffset < 0 ? 'overdue' : tillOffset <= 5 ? 'due' : 'active', checked_at: at.toISOString() });
+    }
+    if (rows.length) {
+      const { error: e3 } = await db.from('checkins').insert(rows);
+      if (e3) return `${name} (check-ins): ${e3.message}`;
+    }
+  }
+  console.log(`Added ${people.length} demo members to ${gym.name}.`);
+  return null;
 }
-await db.from('gyms').update({ next_member_no: no }).eq('id', gym.id);
-console.log(`Added ${people.length} demo members to ${gym.name}.`);
+
+// Set the exit code instead of calling process.exit(): on Windows, exiting while
+// fetch connections are still closing crashes Node (UV_HANDLE_CLOSING assertion).
+const failure = await seed();
+if (failure) {
+  console.error(failure);
+  process.exitCode = 1;
+}
